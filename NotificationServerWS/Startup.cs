@@ -13,6 +13,7 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace NotificationServerWS
 {
@@ -32,11 +33,21 @@ namespace NotificationServerWS
 
     public class Startup
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<Startup> _logger;
 
-        public Startup(ILoggerFactory logFactory)
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
         {
-            _logger = logFactory.CreateLogger<Startup>();
+            Configuration = configuration;
+
+            using var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Information);
+                builder.AddConsole();
+                builder.AddEventSourceLogger();
+            });
+            _logger = loggerFactory.CreateLogger<Startup>();
         }
 
         // список всех клиентов
